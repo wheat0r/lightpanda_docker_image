@@ -1,0 +1,38 @@
+name: Sync Dockerfile
+on:
+  push:
+    paths:
+      - 'Dockerfile'
+      - '.github/workflows/**'
+jobs:
+  sync_dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+    # 检出当前仓库代码
+    - name: Checkout current repository
+      uses: actions/checkout@v3
+    # 检出源仓库代码
+    - name: Checkout source repository Dockerfile
+      uses: actions/checkout@v3
+      with:
+        repository: lightpanda-io/browser
+        path: source_repo
+    # 比较源仓库的Dockerfile与当前仓库的Dockerfile
+    - name: Compare Dockerfile and update if necessary
+      run: |
+        # 路径设置
+        SOURCE_DOCKERFILE=source_repo/Dockerfile
+        TARGET_DOCKERFILE=Dockerfile
+        # 判断是否有变化
+        if cmp -s "$SOURCE_DOCKERFILE" "$TARGET_DOCKERFILE"; then
+          echo "Dockerfile is already up-to-date. No changes needed."
+        else
+          echo "Dockerfile has changes. Updating now..."
+          cp "$SOURCE_DOCKERFILE" "$TARGET_DOCKERFILE"
+          # 提交更新
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$TARGET_DOCKERFILE"
+          git commit -m "Sync Dockerfile from source repository"
+          git push origin main
+        fi
