@@ -48,12 +48,12 @@ RUN git clone git@github.com:lightpanda-io/browser.git
 WORKDIR /browser
 
 # install deps
-#RUN git submodule init && \
-#    git submodule update --recursive
+RUN git submodule init && \
+    git submodule update --recursive
 
-#RUN cd vendor/zig-js-runtime && \
-#    git submodule init && \
-#    git submodule update --recursive
+RUN cd vendor/zig-js-runtime && \
+    git submodule init && \
+    git submodule update --recursive
 
 RUN make install-libiconv && \
     make install-netsurf && \
