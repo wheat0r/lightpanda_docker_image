@@ -2,6 +2,8 @@ name: Sync Dockerfile
 
 on:
   workflow_dispatch: # 支持手动触发
+  schedule:          # 增加定时触发
+    - cron: '0 0 * * *'
   push:
     paths:
       - 'Dockerfile'
