@@ -13,8 +13,8 @@ on:
     branches: [ "nightly" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ "nightly" ]
+  #pull_request:
+    #branches: [ "nightly" ]
 
 env:
   # Use docker.io for Docker Hub if empty
