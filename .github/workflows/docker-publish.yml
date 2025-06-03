@@ -12,7 +12,9 @@ on:
   push:
     branches: [ "nightly" ]
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    paths:
+      - 'Dockerfile'      # 或者 Dockerfile 被修改也触发
+    #tags: [ 'v*.*.*' ]
   #pull_request:
     #branches: [ "nightly" ]
 
