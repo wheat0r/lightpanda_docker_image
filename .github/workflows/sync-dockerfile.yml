@@ -4,10 +4,10 @@ on:
   workflow_dispatch: # 支持手动触发
   schedule:          # 增加定时触发
     - cron: '00 10 * * 1'
-  push:
-    paths:
-      - 'Dockerfile'
-      - '.github/workflows/**'
+  #push:
+  #  paths:
+  #    - 'Dockerfile'
+  #    - '.github/workflows/**'
 
 jobs:
   sync_dockerfile:
