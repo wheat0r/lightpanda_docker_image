@@ -3,16 +3,16 @@ FROM debian:stable-slim
 ARG MINISIG=0.12
 ARG ZIG_MINISIG=RWSGOq2NVecA2UPNdBUZykf1CCb147pkmdtYxgb3Ti+JO/wCYvhbAb/U
 ARG V8=14.0.365.4
-ARG ZIG_V8=v0.1.34
+ARG ZIG_V8=v0.2.2
 ARG TARGETPLATFORM
 
 RUN apt-get update -yq && \
-    apt-get install -yq xz-utils \
-        python3 ca-certificates git \
-        pkg-config libglib2.0-dev \
-        gperf libexpat1-dev \
-        cmake clang \
-        curl git
+    apt-get install -yq xz-utils ca-certificates \
+        clang make curl git
+
+# Get Rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --profile minimal -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # install minisig
 RUN curl --fail -L -O https://github.com/jedisct1/minisign/releases/download/${MINISIG}/minisign-${MINISIG}-linux.tar.gz && \
@@ -39,10 +39,6 @@ RUN ZIG=$(grep '\.minimum_zig_version = "' "build.zig.zon" | cut -d'"' -f2) && \
 RUN git submodule init && \
     git submodule update --recursive
 
-RUN make install-libiconv && \
-    make install-netsurf && \
-    make install-mimalloc
-
 # download and install v8
 RUN case $TARGETPLATFORM in \
     "linux/arm64") ARCH="aarch64" ;; \
@@ -52,8 +48,16 @@ RUN case $TARGETPLATFORM in \
     mkdir -p v8/ && \
     mv libc_v8.a v8/libc_v8.a
 
+# build v8 snapshot
+RUN zig build -Doptimize=ReleaseFast \
+    -Dprebuilt_v8_path=v8/libc_v8.a \
+    snapshot_creator -- src/snapshot.bin
+
 # build release
-RUN zig build -Doptimize=ReleaseSafe -Dprebuilt_v8_path=v8/libc_v8.a -Dgit_commit=$$(git rev-parse --short HEAD)
+RUN zig build -Doptimize=ReleaseFast \
+    -Dsnapshot_path=../../snapshot.bin \
+    -Dprebuilt_v8_path=v8/libc_v8.a \
+    -Dgit_commit=$(git rev-parse --short HEAD)
 
 FROM debian:stable-slim
 
